@@ -1,7 +1,11 @@
 ﻿@page "/"
 
-<h1>Hello, world!</h1>
+@using Blazor.Extensions;
+@using Blazor.Extensions.Canvas
+@using Blazor.Extensions.Canvas.Canvas2D;
 
-Welcome to your new app.
+@inject IJSRuntime jsRuntime
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<div style="border: 1px solid #000; width:502px; height:502px" @onclick="OnClick" @ref="_divCanvas">
+    <BECanvas Width="500" Height="500" @ref="_canvasReference"></BECanvas>
+</div>

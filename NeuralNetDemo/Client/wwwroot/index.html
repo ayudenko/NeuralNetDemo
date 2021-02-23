@@ -23,6 +23,8 @@
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
     <script>navigator.serviceWorker.register('service-worker.js');</script>
+    <script src="_content/Blazor.Extensions.Canvas/blazor.extensions.canvas.js"></script>
+    <script>MyDOMGetBoundingClientRect = (element, parm) => { return element.getBoundingClientRect(); };</script>
 </body>
 
 </html>
