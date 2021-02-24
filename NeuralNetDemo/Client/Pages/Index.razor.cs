@@ -13,27 +13,23 @@ namespace NeuralNetDemo.Client.Pages
     public partial class Index
     {
 
-        private Canvas2DContext _context;
-        private MarksPopulation _population;
         private BECanvasComponent _canvasReference;
         private ElementReference _divCanvas;
         private Teacher _teacher;
         private Feedforward _neuralNet;
-        private Coordinates _lineClickCoords;
-        private Divider _line;
-        private bool _needNewLine = true;
+
+        private Canvas _canvas;
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
-                _context = await _canvasReference.CreateCanvas2DAsync();
-                await _context.SetStrokeStyleAsync("Black");
-                AddPopulation();
+                _canvas = new Canvas(await _canvasReference.CreateCanvas2DAsync());
+                _canvas.InitAsync();
+
                 SetupNeuralNet();
-                _line = new Divider(_context);
-                _teacher = new(_population.Marks, _neuralNet);
-                _teacher.Line = _line;
+                _teacher = new(_canvas.Population.Marks, _neuralNet);
+                _teacher.Line = _canvas.Line;
             }
 
         }
@@ -48,19 +44,14 @@ namespace NeuralNetDemo.Client.Pages
             _neuralNet.InitializeWeightsWithRandomizer();
         }
 
-        private async void RemoveLineOnClick()
+        private void RemoveLineOnClick()
         {
-            await _context.ClearRectAsync(0, 0, 500, 500);
-            _needNewLine = true;
-            foreach (var mark in _population.Marks)
-            {
-                mark.Draw();
-            }
+            _canvas.RemoveLineAsync();
         }
 
         private void ReRunOnClick()
         {
-            foreach (var mark in _population.Marks)
+            foreach (var mark in _canvas.Population.Marks)
             {
                 _neuralNet.SetInputs(new float[] { (float)mark.Center.X, (float)mark.Center.Y });
                 _neuralNet.Process();
@@ -82,16 +73,15 @@ namespace NeuralNetDemo.Client.Pages
             var data = await jsRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", (object)_divCanvas);
             double mouseX = (int)(eventArgs.ClientX - data.Left);
             double mouseY = (int)(eventArgs.ClientY - data.Top);
-            if (_needNewLine)
+            if (!_canvas.HasLine)
             {
-                _lineClickCoords = new() { X = mouseX, Y = mouseY };
-                DrawLineAsync();
-                _needNewLine = false;
+                DrawLineAsync(new() { X = mouseX, Y = mouseY });
+                _canvas.HasLine = true;
                 
             }
             else
             {
-                _population.AddMark(new Coordinates() { X = mouseX, Y = mouseY });
+                _canvas.Population.AddMark(new Coordinates() { X = mouseX, Y = mouseY });
             }
         }
 
@@ -101,16 +91,10 @@ namespace NeuralNetDemo.Client.Pages
             _neuralNet.InitializeWeightsWithRandomizer();
         }
 
-        private void AddPopulation()
+        private async void DrawLineAsync(Coordinates coords)
         {
-            _population = new(_context);
-            _population.Populate();
-        }
-
-        private async void DrawLineAsync()
-        {
-            _line.EndPoint = _lineClickCoords;
-            await _line.DrawAsync();
+            _canvas.Line.EndPoint = coords;
+            await _canvas.Line.DrawAsync();
         }
 
         public class BoundingClientRect

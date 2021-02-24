@@ -37,5 +37,13 @@ namespace NeuralNetDemo.Client.Entities
             Marks.Add(mark);
         }
 
+        public void DrawPopulation()
+        {
+            foreach (var mark in Marks)
+            {
+                mark.Draw();
+            }
+        }
+
     }
 }
