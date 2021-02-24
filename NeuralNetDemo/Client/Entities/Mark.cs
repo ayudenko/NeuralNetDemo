@@ -9,14 +9,13 @@ namespace NeuralNetDemo.Client.Entities
     public class Mark
     {
 
-        private readonly double _x;
-        private readonly double _y;
+        public Coordinates Center { get; set; } = new() { X = 0, Y = 0 };
         private string _color;
         private Canvas2DContext _context;
 
-        public Mark(double x, double y, Canvas2DContext context)
+        public Mark(Canvas2DContext context)
         {
-            (_x, _y, _context) = (x, y, context);
+            _context = context;
         }
 
         public void SetGreen()
@@ -36,12 +35,12 @@ namespace NeuralNetDemo.Client.Entities
 
         public async void Draw()
         {
-            await _context.BeginPathAsync();
             await _context.SetFillStyleAsync(_color);
-            await _context.SetStrokeStyleAsync("Black");
-            await _context.ArcAsync(_x, _y, 5, 0, Math.PI * 2);
+            await _context.BeginPathAsync();
+            await _context.ArcAsync(Center.X, Center.Y, 5, 0, Math.PI * 2);
             await _context.FillAsync();
             await _context.StrokeAsync();
+            await _context.ClosePathAsync();
         }
 
     }
