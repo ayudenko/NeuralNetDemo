@@ -23,12 +23,19 @@ namespace NeuralNetDemo.Client.Entities
             {
                 var x = r.Next(0, 500);
                 var y = r.Next(0, 500);
-                Mark mark = new(_canvas);
-                mark.Center.X = x;
-                mark.Center.Y = y;
-                mark.Draw();
-                Marks.Add(mark);
+                Coordinates coords = new() { X = x, Y = y };
+                AddMark(coords);
             }
         }
+
+        public void AddMark(Coordinates coords)
+        {
+            Mark mark = new(_canvas);
+            mark.Center.X = coords.X;
+            mark.Center.Y = coords.Y;
+            mark.Draw();
+            Marks.Add(mark);
+        }
+
     }
 }

@@ -6,10 +6,6 @@ using Microsoft.JSInterop;
 using Models.NeuralNetModels;
 using Models.NeuralNetModels.ActivationFunctions;
 using NeuralNetDemo.Client.Entities;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NeuralNetDemo.Client.Pages
@@ -19,12 +15,13 @@ namespace NeuralNetDemo.Client.Pages
 
         private Canvas2DContext _context;
         private MarksPopulation _population;
-        protected BECanvasComponent _canvasReference;
+        private BECanvasComponent _canvasReference;
         private ElementReference _divCanvas;
-        protected Teacher _teacher;
-        private ElementReference _teachMeButton;
+        private Teacher _teacher;
         private Feedforward _neuralNet;
         private Coordinates _lineClickCoords;
+        private Divider _line;
+        private bool _needNewLine = true;
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -34,7 +31,9 @@ namespace NeuralNetDemo.Client.Pages
                 await _context.SetStrokeStyleAsync("Black");
                 AddPopulation();
                 SetupNeuralNet();
+                _line = new Divider(_context);
                 _teacher = new(_population.Marks, _neuralNet);
+                _teacher.Line = _line;
             }
 
         }
@@ -44,35 +43,55 @@ namespace NeuralNetDemo.Client.Pages
             _teacher.Teach();
         }
 
+        private void ClearWeightsOnClick()
+        {
+            _neuralNet.InitializeWeightsWithRandomizer();
+        }
+
+        private async void RemoveLineOnClick()
+        {
+            await _context.ClearRectAsync(0, 0, 500, 500);
+            _needNewLine = true;
+            foreach (var mark in _population.Marks)
+            {
+                mark.Draw();
+            }
+        }
+
+        private void ReRunOnClick()
+        {
+            foreach (var mark in _population.Marks)
+            {
+                _neuralNet.SetInputs(new float[] { (float)mark.Center.X, (float)mark.Center.Y });
+                _neuralNet.Process();
+                var output = _neuralNet.GetOutputs()[0];
+                if (output == 1f)
+                {
+                    mark.SetGreen();
+                }
+                else
+                {
+                    mark.SetRed();
+                }
+                mark.Draw();
+            }
+        }
+
         private async void OnClick(MouseEventArgs eventArgs)
         {
             var data = await jsRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", (object)_divCanvas);
             double mouseX = (int)(eventArgs.ClientX - data.Left);
             double mouseY = (int)(eventArgs.ClientY - data.Top);
-            if (_lineClickCoords is null)
+            if (_needNewLine)
             {
-                _lineClickCoords = new();
-                _lineClickCoords.X = mouseX;
-                _lineClickCoords.Y = mouseY;
+                _lineClickCoords = new() { X = mouseX, Y = mouseY };
                 DrawLineAsync();
+                _needNewLine = false;
+                
             }
             else
             {
-                foreach (var mark in _population.Marks)
-                {
-                    _neuralNet.SetInputs(new float[] { (float)mark.Center.X, (float)mark.Center.Y });
-                    _neuralNet.Process();
-                    var output = _neuralNet.GetOutputs()[0];
-                    if (output == 1f)
-                    {
-                        mark.SetGreen();
-                    }
-                    else
-                    {
-                        mark.SetRed();
-                    }
-                    mark.Draw();
-                }
+                _population.AddMark(new Coordinates() { X = mouseX, Y = mouseY });
             }
         }
 
@@ -90,9 +109,8 @@ namespace NeuralNetDemo.Client.Pages
 
         private async void DrawLineAsync()
         {
-            var line = new Divider(_context);
-            line.EndPoint = _lineClickCoords;
-            await line.Draw();
+            _line.EndPoint = _lineClickCoords;
+            await _line.DrawAsync();
         }
 
         public class BoundingClientRect

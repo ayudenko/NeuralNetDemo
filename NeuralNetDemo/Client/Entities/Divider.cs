@@ -7,6 +7,7 @@ namespace NeuralNetDemo.Client.Entities
     {
 
         private Canvas2DContext _context;
+        private float _multiplier = 1;
 
         public Coordinates StartPoint { get; set; } = new() { X = 0, Y = 0 };
         public Coordinates EndPoint { get; set; } = new() { X = 0, Y = 0 };
@@ -16,7 +17,7 @@ namespace NeuralNetDemo.Client.Entities
             _context = context;
         }
 
-        public async Task Draw()
+        public async Task DrawAsync()
         {
             NormalizeCoords();
             await _context.BeginPathAsync();
@@ -26,18 +27,23 @@ namespace NeuralNetDemo.Client.Entities
             await _context.ClosePathAsync();
         }
 
+        public bool IsAboveTheLine(Coordinates coords)
+        {
+            return coords.X * _multiplier > coords.Y;
+        }
+
         private void NormalizeCoords()
         {
-            var multiplier = EndPoint.Y / EndPoint.X;
+            _multiplier = (float)(EndPoint.Y / EndPoint.X);
             if (EndPoint.X > EndPoint.Y)
             {
                 EndPoint.X = 500;
-                EndPoint.Y = multiplier * EndPoint.X;
+                EndPoint.Y = _multiplier * EndPoint.X;
             }
             else
             {
                 EndPoint.Y = 500;
-                EndPoint.X = EndPoint.Y / multiplier;
+                EndPoint.X = EndPoint.Y / _multiplier;
             }
         }
     }

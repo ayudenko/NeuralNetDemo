@@ -7,4 +7,7 @@
 <div style="border: 1px solid #000; width:502px; height:502px" @onclick="OnClick" @ref="_divCanvas">
     <BECanvas Width="500" Height="500" @ref="_canvasReference"></BECanvas>
 </div>
-<button name="teach_me" @ref="_teachMeButton" @onclick="TeachMeOnClick">Teach Me!</button>
+<button name="teach_me" @onclick="TeachMeOnClick">Teach Me!</button>
+<button name="teach_me" @onclick="ReRunOnClick">Re-run Neural Net</button>
+<button name="teach_me" @onclick="ClearWeightsOnClick">Clear Nerural Net Weights</button>
+<button name="teach_me" @onclick="RemoveLineOnClick">Remove the Line</button>

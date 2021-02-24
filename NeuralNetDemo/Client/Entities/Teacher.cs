@@ -8,6 +8,7 @@ namespace NeuralNetDemo.Client.Entities
 
         private List<Mark> _marks = new List<Mark>();
         private Feedforward _neuralNet;
+        public Divider Line { get; set; }
 
         public Teacher(List<Mark> marks, Feedforward neuralNet)
         {
@@ -22,7 +23,7 @@ namespace NeuralNetDemo.Client.Entities
                 _neuralNet.Process();
                 var output = _neuralNet.GetOutputs()[0];
                 var expectedResult = 0f;
-                if (mark.Center.X > mark.Center.Y)
+                if (Line.IsAboveTheLine(mark.Center))
                 {
                     expectedResult = 1f;
                 }
