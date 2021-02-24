@@ -16,35 +16,30 @@ namespace NeuralNetDemo.Client.Pages
     {
 
         private Canvas2DContext _context;
-        private ElementReference _divCanvas;
 
         protected BECanvasComponent _canvasReference;
 
-        private List<Mark> marks = new List<Mark>();
-
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            _context = await _canvasReference.CreateCanvas2DAsync();
-            await _context.SetStrokeStyleAsync("Black");
+            if (firstRender)
+            {
+                _context = await _canvasReference.CreateCanvas2DAsync();
+                await _context.SetStrokeStyleAsync("Black");
 
-            var line = new Divider(_context);
-            line.EndPoint.X = 500;
-            line.EndPoint.Y = 200;
-            await line.Draw();
+                var line = new Divider(_context);
+                line.EndPoint.X = 500;
+                line.EndPoint.Y = 200;
+                await line.Draw();
+
+                MarksPopulation population = new(_context);
+                population.Populate();
+            }
+
         }
 
         private async void OnClick(MouseEventArgs eventArgs)
         {
-            var data = await jsRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", (object)_divCanvas);
-            double mouseX = (int)(eventArgs.ClientX - data.Left);
-            double mouseY = (int)(eventArgs.ClientY - data.Top);
-
-            var mark = new Mark(_context);
-            mark.Center.X = mouseX;
-            mark.Center.Y = mouseY;
-            mark.SetWhite();
-            mark.Draw();
-            marks.Add(mark);
+            
         }
 
         public class BoundingClientRect
