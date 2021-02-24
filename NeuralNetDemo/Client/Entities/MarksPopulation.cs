@@ -19,7 +19,7 @@ namespace NeuralNetDemo.Client.Entities
         public void Populate()
         {
             Random r = new();
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < 100; i++)
             {
                 var x = r.Next(0, 500);
                 var y = r.Next(0, 500);
