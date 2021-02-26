@@ -13,7 +13,7 @@ namespace NeuralNetDemo.Client.Entities
         private readonly Canvas2DContext _context;
         public bool HasLine { get; set; } = false;
         public MarksPopulation Population { get; set; }
-        public Divider Line { get; set; }
+        public Dictionary<double, Divider> Lines { get; set; } = new Dictionary<double, Divider>();
 
 
         public Canvas(Canvas2DContext context)
@@ -24,7 +24,6 @@ namespace NeuralNetDemo.Client.Entities
         public void InitAsync()
         {
             _context.SetStrokeStyleAsync("Black");
-            Line = new Divider(_context);
         }
 
         public void AddPopulation(int numberOfMarks)
@@ -33,26 +32,22 @@ namespace NeuralNetDemo.Client.Entities
             Population.CreatePopulation(numberOfMarks);
         }
 
-        public async void RemoveLineAsync()
+        public void RemoveLine()
         {
             ClearCanvas();
-            HasLine = false;
             foreach (var mark in Population.Marks)
             {
                 mark.Draw();
             }
         }
 
-        public async void DrawLineAsync(Coordinates coords)
+        public async Task<Divider> DrawLineAsync(Coordinates coords)
         {
-            Line.EndPoint = coords;
-            await Line.DrawAsync();
-            HasLine = true;
-        }
-
-        public async void RedrawCanvas()
-        {
-
+            Divider line = new Divider(_context);
+            line.EndPoint = coords;
+            await line.DrawAsync();
+            Lines.Add(line.EndPoint.X, line);
+            return line;
         }
 
         public async void ClearCanvas()

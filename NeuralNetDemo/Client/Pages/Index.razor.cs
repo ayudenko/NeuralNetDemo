@@ -6,6 +6,7 @@ using Microsoft.JSInterop;
 using Models.NeuralNetModels;
 using Models.NeuralNetModels.ActivationFunctions;
 using NeuralNetDemo.Client.Entities;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NeuralNetDemo.Client.Pages
@@ -16,7 +17,7 @@ namespace NeuralNetDemo.Client.Pages
         private BECanvasComponent _canvasReference;
         private ElementReference _divCanvas;
         private Teacher _teacher;
-        private Feedforward _neuralNet;
+        private Dictionary<Divider, Feedforward> _linesNeuralNets = new Dictionary<Divider, Feedforward>();
         private Canvas2DContext _context;
         private Canvas _canvas;
 
@@ -30,15 +31,14 @@ namespace NeuralNetDemo.Client.Pages
                 _context = await _canvasReference.CreateCanvas2DAsync();
                 _canvas = new Canvas(_context);
                 _canvas.InitAsync();
-                SetupNeuralNet();
-                _teacher = new(_neuralNet, new MarksPopulation(_context));
+                _teacher = new(new MarksPopulation(_context));
             }
             
         }
 
         private void TeachMeOnClick()
         {
-            _teacher.Line = _canvas.Line;
+            _teacher.Lines = _canvas.Lines;
             _teacher.Teach(_pointsNumberForTeaching);
         }
 
@@ -51,12 +51,15 @@ namespace NeuralNetDemo.Client.Pages
 
         private void ClearWeightsOnClick()
         {
-            _neuralNet.InitializeWeightsWithRandomizer();
+            foreach (var neuralNetId in _linesNeuralNets.Keys)
+            {
+                _linesNeuralNets[neuralNetId].InitializeWeightsWithRandomizer();
+            }
         }
 
         private void RemoveLineOnClick()
         {
-            _canvas.RemoveLineAsync();
+            _canvas.RemoveLine();
             _canvas.Population.DrawPopulation();
         }
 
@@ -64,18 +67,21 @@ namespace NeuralNetDemo.Client.Pages
         {
             foreach (var mark in _canvas.Population.Marks)
             {
-                _neuralNet.SetInputs(new float[] { (float)mark.Center.X, (float)mark.Center.Y });
-                _neuralNet.Process();
-                var output = _neuralNet.GetOutputs()[0];
-                if (output == 1f)
+                foreach (var neuralNetId in _linesNeuralNets.Keys)
                 {
-                    mark.SetGreen();
+                    _linesNeuralNets[neuralNetId].SetInputs(new float[] { (float)mark.Center.X, (float)mark.Center.Y });
+                    _linesNeuralNets[neuralNetId].Process();
+                    var output = _linesNeuralNets[neuralNetId].GetOutputs()[0];
+                    if (output == 1f)
+                    {
+                        mark.SetGreen();
+                    }
+                    else
+                    {
+                        mark.SetRed();
+                    }
+                    mark.Draw();
                 }
-                else
-                {
-                    mark.SetRed();
-                }
-                mark.Draw();
             }
         }
 
@@ -84,22 +90,16 @@ namespace NeuralNetDemo.Client.Pages
             var data = await jsRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", (object)_divCanvas);
             double mouseX = (int)(eventArgs.ClientX - data.Left);
             double mouseY = (int)(eventArgs.ClientY - data.Top);
-            if (!_canvas.HasLine)
-            {
-                _canvas.DrawLineAsync(new Coordinates(mouseX, mouseY));
-                _canvas.HasLine = true;
-
-            }
-            else
-            {
-                _canvas.Population.AddMark(new Coordinates(mouseX, mouseY));
-            }
+            var line = await _canvas.DrawLineAsync(new Coordinates(mouseX, mouseY));
+            AddNeuralNet(line);
         }
 
-        private void SetupNeuralNet()
+        private void AddNeuralNet(Divider line)
         {
-            _neuralNet = new Feedforward(2, 1, true) { ActivationFunction = new BinaryStep() };
-            _neuralNet.InitializeWeightsWithRandomizer();
+            var neuralNet = new Feedforward(2, 2, true) { ActivationFunction = new BinaryStep() };
+            neuralNet.InitializeWeightsWithRandomizer();
+            _linesNeuralNets.Add(line, neuralNet);
+            _teacher.NeuralNets.Add(line, neuralNet);
         }
 
         public class BoundingClientRect

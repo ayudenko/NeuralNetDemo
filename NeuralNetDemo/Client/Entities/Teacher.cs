@@ -7,45 +7,50 @@ namespace NeuralNetDemo.Client.Entities
     {
 
         private MarksPopulation _marksPopulation;
-        private Feedforward _neuralNet;
-        public Divider Line { get; set; }
+        public  Dictionary<Divider, Feedforward> NeuralNets { get; set; } = new Dictionary<Divider, Feedforward>();
+        public Dictionary<double, Divider> Lines { get; set; } = new Dictionary<double, Divider>();
 
-        public Teacher(Feedforward neuralNet, MarksPopulation marksPopulation)
+        public Teacher(MarksPopulation marksPopulation)
         {
-            _neuralNet = neuralNet;
             _marksPopulation = marksPopulation;
         }
 
         public void Teach(int numberOfPointsToTeach = 50)
         {
-            _marksPopulation.CreatePopulation(numberOfPointsToTeach);
-            List<Mark> marks = _marksPopulation.Marks;
-            foreach (var mark in marks)
+            foreach (var lineId in NeuralNets.Keys)
             {
-                _neuralNet.SetInputs(new float[] { (float)mark.Center.X, (float)mark.Center.Y });
-                _neuralNet.Process();
-                var output = _neuralNet.GetOutputs()[0];
-                var expectedResult = 0f;
-                if (Line.IsAboveTheLine(mark.Center))
+                if (NeuralNets[lineId] is not null)
                 {
-                    expectedResult = 1f;
-                }
-                var error = 2f;
-                if (expectedResult == output)
-                {
-                    error = 0f;
-                }
-                else if (expectedResult < output)
-                {
-                    error = -2f;
-                }
-                //_neuralNet.AdjustWeightsWithError(error);
-                var inputs = new float[] { (float)mark.Center.X, (float)mark.Center.Y, 1f };
-                for (var i = 0; i < _neuralNet.Weights.GetLength(0); i++)
-                {
-                    for (var k = 0; k < _neuralNet.Weights.GetLength(1); k++)
+                    _marksPopulation.CreatePopulation(numberOfPointsToTeach);
+                    List<Mark> marks = _marksPopulation.Marks;
+                    foreach (var mark in marks)
                     {
-                        _neuralNet.Weights[i, k] += 0.005f * error * inputs[k];
+                        NeuralNets[lineId].SetInputs(new float[] { (float)mark.Center.X, (float)mark.Center.Y });
+                        NeuralNets[lineId].Process();
+                        var output = NeuralNets[lineId].GetOutputs()[0];
+                        var expectedResult = 0f;
+                        if (lineId.IsAboveTheLine(mark.Center))
+                        {
+                            expectedResult = 1f;
+                        }
+                        var error = 2f;
+                        if (expectedResult == output)
+                        {
+                            error = 0f;
+                        }
+                        else if (expectedResult < output)
+                        {
+                            error = -2f;
+                        }
+                        //_neuralNet.AdjustWeightsWithError(error);
+                        var inputs = new float[] { (float)mark.Center.X, (float)mark.Center.Y, 1f };
+                        for (var i = 0; i < NeuralNets[lineId].Weights.GetLength(0); i++)
+                        {
+                            for (var k = 0; k < NeuralNets[lineId].Weights.GetLength(1); k++)
+                            {
+                                NeuralNets[lineId].Weights[i, k] += 0.005f * error * inputs[k];
+                            }
+                        }
                     }
                 }
             }
