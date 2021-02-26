@@ -9,8 +9,8 @@ namespace NeuralNetDemo.Client.Entities
         private Canvas2DContext _context;
         private float _multiplier = 1;
 
-        public Coordinates StartPoint { get; set; } = new() { X = 0, Y = 0 };
-        public Coordinates EndPoint { get; set; } = new() { X = 0, Y = 0 };
+        public Coordinates StartPoint { get; set; } = new(0, 0);
+        public Coordinates EndPoint { get; set; } = new(0, 0);
 
         public Divider(Canvas2DContext context)
         {
@@ -35,15 +35,15 @@ namespace NeuralNetDemo.Client.Entities
         private void NormalizeCoords()
         {
             _multiplier = (float)(EndPoint.Y / EndPoint.X);
+            double maxX = 500;
+            double maxY = 500;
             if (EndPoint.X > EndPoint.Y)
             {
-                EndPoint.X = 500;
-                EndPoint.Y = _multiplier * EndPoint.X;
+                EndPoint = new Coordinates(maxX, _multiplier * maxX);
             }
             else
             {
-                EndPoint.Y = 500;
-                EndPoint.X = EndPoint.Y / _multiplier;
+                EndPoint = new Coordinates(maxY / _multiplier, maxY);
             }
         }
     }

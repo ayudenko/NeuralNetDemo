@@ -1,5 +1,4 @@
 ﻿using Blazor.Extensions;
-using Blazor.Extensions.Canvas.Canvas2D;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -75,13 +74,13 @@ namespace NeuralNetDemo.Client.Pages
             double mouseY = (int)(eventArgs.ClientY - data.Top);
             if (!_canvas.HasLine)
             {
-                DrawLineAsync(new() { X = mouseX, Y = mouseY });
+                _canvas.DrawLineAsync(new Coordinates(mouseX, mouseY));
                 _canvas.HasLine = true;
-                
+
             }
             else
             {
-                _canvas.Population.AddMark(new Coordinates() { X = mouseX, Y = mouseY });
+                _canvas.Population.AddMark(new Coordinates(mouseX, mouseY));
             }
         }
 

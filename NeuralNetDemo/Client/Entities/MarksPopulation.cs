@@ -23,7 +23,7 @@ namespace NeuralNetDemo.Client.Entities
             {
                 var x = r.Next(0, 500);
                 var y = r.Next(0, 500);
-                Coordinates coords = new() { X = x, Y = y };
+                Coordinates coords = new(x, y);
                 AddMark(coords);
             }
         }
@@ -31,8 +31,7 @@ namespace NeuralNetDemo.Client.Entities
         public void AddMark(Coordinates coords)
         {
             Mark mark = new(_canvas);
-            mark.Center.X = coords.X;
-            mark.Center.Y = coords.Y;
+            mark.Center = new Coordinates(coords.X, coords.Y);
             mark.Draw();
             Marks.Add(mark);
         }

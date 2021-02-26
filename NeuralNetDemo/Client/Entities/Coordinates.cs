@@ -3,8 +3,13 @@
     public class Coordinates
     {
 
-        public double X { get; set; }
-        public double Y { get; set; }
+        public double X { get; init; }
+        public double Y { get; init; }
+
+        public Coordinates(double x, double y)
+        {
+            (X, Y) = (x, y);
+        }
 
     }
 }

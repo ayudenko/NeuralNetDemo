@@ -1,17 +1,14 @@
 ﻿using Blazor.Extensions.Canvas.Canvas2D;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace NeuralNetDemo.Client.Entities
 {
     public class Mark
     {
 
-        public Coordinates Center { get; set; } = new() { X = 0, Y = 0 };
+        public Coordinates Center { get; set; } = new(0, 0);
         private string _color;
-        private Canvas2DContext _context;
+        private readonly Canvas2DContext _context;
 
         public Mark(Canvas2DContext context)
         {
