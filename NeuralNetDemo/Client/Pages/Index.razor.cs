@@ -20,6 +20,7 @@ namespace NeuralNetDemo.Client.Pages
         private Dictionary<Divider, Feedforward> _linesNeuralNets = new Dictionary<Divider, Feedforward>();
         private Canvas2DContext _context;
         private Canvas _canvas;
+        private int _maxNumberOfLines = 2;
 
         private int _pointsNumberForTeaching { get; set; } = 50;
         private int _pointsNumberForRandomlyDrawing { get; set; } = 50;
@@ -42,9 +43,10 @@ namespace NeuralNetDemo.Client.Pages
             _teacher.Teach(_pointsNumberForTeaching);
         }
 
-        private void DrawMarksRandomly()
+        private async Task DrawMarksRandomly()
         {
             _canvas.ClearCanvas();
+            await _canvas.DrawLinesAsync();
             _canvas.AddPopulation(_pointsNumberForRandomlyDrawing);
             _canvas.Population.DrawPopulation();
         }
@@ -87,11 +89,14 @@ namespace NeuralNetDemo.Client.Pages
 
         private async void OnClick(MouseEventArgs eventArgs)
         {
-            var data = await jsRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", (object)_divCanvas);
-            double mouseX = (int)(eventArgs.ClientX - data.Left);
-            double mouseY = (int)(eventArgs.ClientY - data.Top);
-            var line = await _canvas.DrawLineAsync(new Coordinates(mouseX, mouseY));
-            AddNeuralNet(line);
+            if (_maxNumberOfLines > _linesNeuralNets.Count)
+            {
+                var data = await jsRuntime.InvokeAsync<BoundingClientRect>("MyDOMGetBoundingClientRect", (object)_divCanvas);
+                double mouseX = (int)(eventArgs.ClientX - data.Left);
+                double mouseY = (int)(eventArgs.ClientY - data.Top);
+                var line = await _canvas.DrawLineAsync(new Coordinates(mouseX, mouseY));
+                AddNeuralNet(line);
+            }
         }
 
         private void AddNeuralNet(Divider line)

@@ -43,11 +43,19 @@ namespace NeuralNetDemo.Client.Entities
 
         public async Task<Divider> DrawLineAsync(Coordinates coords)
         {
-            Divider line = new Divider(_context);
+            var line = new Divider(_context);
             line.EndPoint = coords;
             await line.DrawAsync();
             Lines.Add(line.EndPoint.X, line);
             return line;
+        }
+
+        public async Task DrawLinesAsync()
+        {
+            foreach (var line in Lines.Values)
+            {
+                await line.DrawAsync();
+            }
         }
 
         public async void ClearCanvas()
