@@ -8,6 +8,12 @@
     <BECanvas Width="500" Height="500" @ref="_canvasReference"></BECanvas>
 </div>
 <button name="teach_me" @onclick="TeachMeOnClick">Teach Me!</button>
+<input type="number" @bind="_pointsNumberForTeaching" />
+<br />
+<button name="draw_marks_randomly" @onclick="DrawMarksRandomly">Draw Marks Randomly</button>
+<input type="number" @bind="_pointsNumberForRandomlyDrawing" />
+<br />
 <button name="teach_me" @onclick="ReRunOnClick">Re-run Neural Net</button>
+<br />
 <button name="teach_me" @onclick="ClearWeightsOnClick">Clear Nerural Net Weights</button>
 <button name="teach_me" @onclick="RemoveLineOnClick">Remove the Line</button>

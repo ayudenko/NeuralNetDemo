@@ -16,10 +16,10 @@ namespace NeuralNetDemo.Client.Entities
             _canvas = canvas;
         }
 
-        public void Populate()
+        public void CreatePopulation(int number)
         {
             Random r = new();
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < number; i++)
             {
                 var x = r.Next(0, 500);
                 var y = r.Next(0, 500);
@@ -32,16 +32,17 @@ namespace NeuralNetDemo.Client.Entities
         {
             Mark mark = new(_canvas);
             mark.Center = new Coordinates(coords.X, coords.Y);
-            mark.Draw();
             Marks.Add(mark);
         }
 
         public void DrawPopulation()
         {
+            _canvas.BeginPathAsync();
             foreach (var mark in Marks)
             {
                 mark.Draw();
             }
+            _canvas.EndBatchAsync();
         }
 
     }

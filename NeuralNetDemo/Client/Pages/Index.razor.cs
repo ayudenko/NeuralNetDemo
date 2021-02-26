@@ -1,4 +1,5 @@
 ﻿using Blazor.Extensions;
+using Blazor.Extensions.Canvas.Canvas2D;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -16,26 +17,36 @@ namespace NeuralNetDemo.Client.Pages
         private ElementReference _divCanvas;
         private Teacher _teacher;
         private Feedforward _neuralNet;
-
+        private Canvas2DContext _context;
         private Canvas _canvas;
 
+        private int _pointsNumberForTeaching { get; set; } = 50;
+        private int _pointsNumberForRandomlyDrawing { get; set; } = 50;
+        
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
-                _canvas = new Canvas(await _canvasReference.CreateCanvas2DAsync());
+                _context = await _canvasReference.CreateCanvas2DAsync();
+                _canvas = new Canvas(_context);
                 _canvas.InitAsync();
-
                 SetupNeuralNet();
-                _teacher = new(_canvas.Population.Marks, _neuralNet);
-                _teacher.Line = _canvas.Line;
+                _teacher = new(_neuralNet, new MarksPopulation(_context));
             }
-
+            
         }
 
         private void TeachMeOnClick()
         {
-            _teacher.Teach();
+            _teacher.Line = _canvas.Line;
+            _teacher.Teach(_pointsNumberForTeaching);
+        }
+
+        private void DrawMarksRandomly()
+        {
+            _canvas.ClearCanvas();
+            _canvas.AddPopulation(_pointsNumberForRandomlyDrawing);
+            _canvas.Population.DrawPopulation();
         }
 
         private void ClearWeightsOnClick()
@@ -46,6 +57,7 @@ namespace NeuralNetDemo.Client.Pages
         private void RemoveLineOnClick()
         {
             _canvas.RemoveLineAsync();
+            _canvas.Population.DrawPopulation();
         }
 
         private void ReRunOnClick()
@@ -88,12 +100,6 @@ namespace NeuralNetDemo.Client.Pages
         {
             _neuralNet = new Feedforward(2, 1, true) { ActivationFunction = new BinaryStep() };
             _neuralNet.InitializeWeightsWithRandomizer();
-        }
-
-        private async void DrawLineAsync(Coordinates coords)
-        {
-            _canvas.Line.EndPoint = coords;
-            await _canvas.Line.DrawAsync();
         }
 
         public class BoundingClientRect

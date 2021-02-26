@@ -6,18 +6,21 @@ namespace NeuralNetDemo.Client.Entities
     public class Teacher
     {
 
-        private List<Mark> _marks = new List<Mark>();
+        private MarksPopulation _marksPopulation;
         private Feedforward _neuralNet;
         public Divider Line { get; set; }
 
-        public Teacher(List<Mark> marks, Feedforward neuralNet)
+        public Teacher(Feedforward neuralNet, MarksPopulation marksPopulation)
         {
-            (_marks, _neuralNet) = (marks, neuralNet);
+            _neuralNet = neuralNet;
+            _marksPopulation = marksPopulation;
         }
 
-        public void Teach()
+        public void Teach(int numberOfPointsToTeach = 50)
         {
-            foreach (var mark in _marks)
+            _marksPopulation.CreatePopulation(numberOfPointsToTeach);
+            List<Mark> marks = _marksPopulation.Marks;
+            foreach (var mark in marks)
             {
                 _neuralNet.SetInputs(new float[] { (float)mark.Center.X, (float)mark.Center.Y });
                 _neuralNet.Process();

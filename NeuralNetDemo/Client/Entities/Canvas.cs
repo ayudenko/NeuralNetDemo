@@ -24,19 +24,18 @@ namespace NeuralNetDemo.Client.Entities
         public void InitAsync()
         {
             _context.SetStrokeStyleAsync("Black");
-            AddPopulation();
             Line = new Divider(_context);
         }
 
-        private void AddPopulation()
+        public void AddPopulation(int numberOfMarks)
         {
             Population = new(_context);
-            Population.Populate();
+            Population.CreatePopulation(numberOfMarks);
         }
 
         public async void RemoveLineAsync()
         {
-            await _context.ClearRectAsync(0, 0, 500, 500);
+            ClearCanvas();
             HasLine = false;
             foreach (var mark in Population.Marks)
             {
@@ -49,6 +48,16 @@ namespace NeuralNetDemo.Client.Entities
             Line.EndPoint = coords;
             await Line.DrawAsync();
             HasLine = true;
+        }
+
+        public async void RedrawCanvas()
+        {
+
+        }
+
+        public async void ClearCanvas()
+        {
+            await _context.ClearRectAsync(0, 0, 500, 500);
         }
 
     }
