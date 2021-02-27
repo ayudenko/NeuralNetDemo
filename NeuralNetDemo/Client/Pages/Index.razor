@@ -7,11 +7,15 @@
 <div style="border: 1px solid #000; width:502px; height:502px" @onclick="OnClick" @ref="_divCanvas">
     <BECanvas Width="500" Height="500" @ref="_canvasReference"></BECanvas>
 </div>
-<button name="teach_me" @onclick="TeachMeOnClick">Teach Me!</button>
-<input type="number" @bind="_pointsNumberForTeaching" />
-<br />
 <button name="draw_marks_randomly" @onclick="DrawMarksRandomly">Draw Marks Randomly</button>
 <input type="number" @bind="_pointsNumberForRandomlyDrawing" />
+<span>cirles to draw</span>
+<span>(@_drawnCircles.ToString() circles have been drawn)</span>
+<br />
+<button name="teach_me" @onclick="TeachMeOnClick">Teach Me!</button>
+<input type="number" @bind="_pointsNumberForTeaching" />
+<span> points to teach Neural Network</span>
+<span> (Neural Network has been taught on @_circlesForTeaching circles )</span>
 <br />
 <button name="teach_me" @onclick="ReRunOnClick">Re-run Neural Net</button>
 <br />

@@ -1,8 +1,5 @@
-﻿using Blazor.Extensions;
-using Blazor.Extensions.Canvas.Canvas2D;
-using System;
+﻿using Blazor.Extensions.Canvas.Canvas2D;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NeuralNetDemo.Client.Entities
@@ -43,6 +40,7 @@ namespace NeuralNetDemo.Client.Entities
                     mark.Draw();
                 }
             }
+            Lines = new List<Divider>();
         }
 
         public async Task<Divider> DrawLineAsync(Coordinates coords, string color)

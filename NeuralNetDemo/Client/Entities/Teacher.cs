@@ -14,8 +14,9 @@ namespace NeuralNetDemo.Client.Entities
             _marksPopulation = marksPopulation;
         }
 
-        public void Teach(int numberOfPointsToTeach = 50)
+        public void Teach(int numberOfPointsToTeach)
         {
+            _marksPopulation.Marks = new List<Mark>();
             foreach (var lineId in NeuralNets.Keys)
             {
                 if (NeuralNets[lineId] is not null)

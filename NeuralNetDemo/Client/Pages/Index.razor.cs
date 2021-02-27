@@ -6,10 +6,7 @@ using Microsoft.JSInterop;
 using Models.NeuralNetModels;
 using Models.NeuralNetModels.ActivationFunctions;
 using NeuralNetDemo.Client.Entities;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NeuralNetDemo.Client.Pages
@@ -20,15 +17,15 @@ namespace NeuralNetDemo.Client.Pages
         private BECanvasComponent _canvasReference;
         private ElementReference _divCanvas;
         private Teacher _teacher;
-        private SortedDictionary<Divider, Feedforward> _linesNeuralNets = new SortedDictionary<Divider, Feedforward>(new LinesComparer());
         private Canvas2DContext _context;
         private Canvas _canvas;
-        private int _maxNumberOfLines = 2;
+        private int _maxNumberOfLines = 3;
         private Color[] _colors = new Color[] { new Color("Green"), new Color("Red"), new Color("White") };
+        private int _drawnCircles = 0;
+        private int _circlesForTeaching = 0;
+        private int _pointsNumberForTeaching = 50;
+        private int _pointsNumberForRandomlyDrawing = 50;
 
-        private int _pointsNumberForTeaching { get; set; } = 50;
-        private int _pointsNumberForRandomlyDrawing { get; set; } = 50;
-        
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
@@ -43,15 +40,16 @@ namespace NeuralNetDemo.Client.Pages
         private void TeachMeOnClick()
         {
             _teacher.Teach(_pointsNumberForTeaching);
+            _circlesForTeaching += _pointsNumberForTeaching;
         }
 
         private async Task DrawMarksRandomly()
         {
             _canvas.ClearCanvas();
-            _canvas.Lines = new List<Divider>();
             await _canvas.DrawLinesAsync();
             _canvas.AddPopulation(_pointsNumberForRandomlyDrawing);
             _canvas.Population.DrawPopulation();
+            _drawnCircles = _pointsNumberForRandomlyDrawing;
         }
 
         private void ClearWeightsOnClick()
@@ -60,6 +58,7 @@ namespace NeuralNetDemo.Client.Pages
             {
                 _teacher.NeuralNets[neuralNetId].InitializeWeightsWithRandomizer();
             }
+            _circlesForTeaching = 0;
         }
 
         private void RemoveLineOnClick()
@@ -124,7 +123,7 @@ namespace NeuralNetDemo.Client.Pages
             _teacher.NeuralNets.Add(line, neuralNet);
         }
 
-        
+
 
         public class BoundingClientRect
         {
