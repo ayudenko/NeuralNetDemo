@@ -7,7 +7,7 @@ namespace NeuralNetDemo.Client.Entities
     {
 
         private MarksPopulation _marksPopulation;
-        public  Dictionary<Divider, Feedforward> NeuralNets { get; set; } = new Dictionary<Divider, Feedforward>();
+        public  SortedDictionary<Divider, Feedforward> NeuralNets { get; set; } = new SortedDictionary<Divider, Feedforward>(new LinesComparer());
 
         public Teacher(MarksPopulation marksPopulation)
         {

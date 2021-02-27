@@ -6,7 +6,10 @@ using Microsoft.JSInterop;
 using Models.NeuralNetModels;
 using Models.NeuralNetModels.ActivationFunctions;
 using NeuralNetDemo.Client.Entities;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NeuralNetDemo.Client.Pages
@@ -17,7 +20,7 @@ namespace NeuralNetDemo.Client.Pages
         private BECanvasComponent _canvasReference;
         private ElementReference _divCanvas;
         private Teacher _teacher;
-        private Dictionary<Divider, Feedforward> _linesNeuralNets = new Dictionary<Divider, Feedforward>();
+        private SortedDictionary<Divider, Feedforward> _linesNeuralNets = new SortedDictionary<Divider, Feedforward>(new LinesComparer());
         private Canvas2DContext _context;
         private Canvas _canvas;
         private int _maxNumberOfLines = 2;
@@ -62,7 +65,7 @@ namespace NeuralNetDemo.Client.Pages
         private void RemoveLineOnClick()
         {
             _canvas.RemoveLine();
-            _teacher.NeuralNets = new Dictionary<Divider, Feedforward>();
+            _teacher.NeuralNets = new SortedDictionary<Divider, Feedforward>(new LinesComparer());
             _canvas.Population.DrawPopulation();
             foreach (Color color in _colors)
             {
@@ -120,6 +123,8 @@ namespace NeuralNetDemo.Client.Pages
             neuralNet.InitializeWeightsWithRandomizer();
             _teacher.NeuralNets.Add(line, neuralNet);
         }
+
+        
 
         public class BoundingClientRect
         {

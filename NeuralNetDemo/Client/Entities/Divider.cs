@@ -19,6 +19,11 @@ namespace NeuralNetDemo.Client.Entities
             Color = color;
         }
 
+        public float GetMultiplier()
+        {
+            return _multiplier;
+        }
+
         public async Task DrawAsync()
         {
             NormalizeCoords();
