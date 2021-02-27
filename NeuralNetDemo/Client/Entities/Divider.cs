@@ -11,10 +11,12 @@ namespace NeuralNetDemo.Client.Entities
 
         public Coordinates StartPoint { get; set; } = new(0, 0);
         public Coordinates EndPoint { get; set; } = new(0, 0);
+        public string Color { get; init; }
 
-        public Divider(Canvas2DContext context)
+        public Divider(Canvas2DContext context, string color)
         {
             _context = context;
+            Color = color;
         }
 
         public async Task DrawAsync()

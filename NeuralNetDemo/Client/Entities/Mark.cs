@@ -15,6 +15,11 @@ namespace NeuralNetDemo.Client.Entities
             _context = context;
         }
 
+        public void SetColor(string color)
+        {
+            _color = color;
+        }
+
         public void SetGreen()
         {
             _color = "Green";

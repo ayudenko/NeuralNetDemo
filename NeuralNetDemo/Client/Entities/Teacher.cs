@@ -8,7 +8,6 @@ namespace NeuralNetDemo.Client.Entities
 
         private MarksPopulation _marksPopulation;
         public  Dictionary<Divider, Feedforward> NeuralNets { get; set; } = new Dictionary<Divider, Feedforward>();
-        public Dictionary<double, Divider> Lines { get; set; } = new Dictionary<double, Divider>();
 
         public Teacher(MarksPopulation marksPopulation)
         {
