@@ -133,7 +133,7 @@ namespace NeuralNetDemo.Client.Pages
 
         private void AddNeuralNet(Divider line)
         {
-            var neuralNet = new Feedforward(2, 2, true) { ActivationFunction = new BinaryStep() };
+            var neuralNet = new Feedforward(2, 2, false) { ActivationFunction = new BinaryStep() };
             neuralNet.InitializeWeightsWithRandomizer();
             _teacher.NeuralNets.Add(line, neuralNet);
         }

@@ -50,7 +50,7 @@ namespace NeuralNetDemo.Client.Entities
                             {
                                 error = -2f;
                             }
-                            var inputs = new float[] { (float)mark.Center.X, (float)mark.Center.Y, 1f };
+                            var inputs = new float[] { (float)mark.Center.X, (float)mark.Center.Y};
                             for (var i = 0; i < NeuralNets[lineId].Weights.GetLength(0); i++)
                             {
                                 for (var k = 0; k < NeuralNets[lineId].Weights.GetLength(1); k++)
