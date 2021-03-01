@@ -62,7 +62,7 @@ namespace NeuralNetDemo.Client.Entities
 
         public async void ClearCanvas()
         {
-            await _context.ClearRectAsync(0, 0, 500, 500);
+            await _context.ClearRectAsync(0, 0, 700, 700);
         }
 
     }

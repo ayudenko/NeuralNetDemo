@@ -21,8 +21,8 @@ namespace NeuralNetDemo.Client.Entities
             Random r = new();
             for (int i = 0; i < number; i++)
             {
-                var x = r.Next(0, 500);
-                var y = r.Next(0, 500);
+                var x = r.Next(0, 700);
+                var y = r.Next(0, 700);
                 Coordinates coords = new(x, y);
                 AddMark(coords);
             }

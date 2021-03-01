@@ -23,8 +23,10 @@ namespace NeuralNetDemo.Client.Pages
         private Color[] _colors = new Color[] { new Color("Green"), new Color("Red"), new Color("White") };
         private int _drawnCircles = 0;
         private int _circlesForTeaching = 0;
-        private int _pointsNumberForTeaching = 50;
-        private int _pointsNumberForRandomlyDrawing = 50;
+        private int _pointsNumberForTeaching = 500;
+        private int _pointsNumberForRandomlyDrawing = 500;
+        private bool _teachingInProgress = false;
+        private static double _teachingMarksPercent = 0;
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -34,13 +36,22 @@ namespace NeuralNetDemo.Client.Pages
                 _canvas = new Canvas(_context);
                 _canvas.InitAsync();
                 _teacher = new(new MarksPopulation(_context));
+                _teacher.MarkLearnedEvent += UpdateProgressBar;
             }
         }
 
-        private void TeachMeOnClick()
+        private static void UpdateProgressBar(object obj, MarkLearnedEventArgs args)
         {
-            _teacher.Teach(_pointsNumberForTeaching);
+            _teachingMarksPercent = args.Percent;
+        }
+
+        private async Task TeachMeOnClickAsync()
+        {
+            _teachingInProgress = false;
+            _teachingMarksPercent = 0;
+            await _teacher.TeachAsync(_pointsNumberForTeaching);
             _circlesForTeaching += _pointsNumberForTeaching;
+            _teachingInProgress = false;
         }
 
         private async Task DrawMarksRandomly()
@@ -50,6 +61,10 @@ namespace NeuralNetDemo.Client.Pages
             _canvas.AddPopulation(_pointsNumberForRandomlyDrawing);
             _canvas.Population.DrawPopulation();
             _drawnCircles = _pointsNumberForRandomlyDrawing;
+            foreach (var mark in _canvas.Population.Marks)
+            {
+                mark.SetColor("Balck");
+            }
         }
 
         private void ClearWeightsOnClick()
@@ -82,7 +97,7 @@ namespace NeuralNetDemo.Client.Pages
             {
                 foreach (var mark in _canvas.Population.Marks)
                 {
-                    _teacher.NeuralNets[neuralNetId].SetInputs(new float[] { (float)mark.Center.X, (float)mark.Center.Y });
+                    _teacher.NeuralNets[neuralNetId].SetInputs(new float[] { (float)mark.Center.X/700, (float)mark.Center.Y/700 });
                     _teacher.NeuralNets[neuralNetId].Process();
                     var output = _teacher.NeuralNets[neuralNetId].GetOutputs()[0];
                     if (output == 1f)

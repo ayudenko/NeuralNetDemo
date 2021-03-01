@@ -1,5 +1,7 @@
 ﻿using Models.NeuralNetModels;
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NeuralNetDemo.Client.Entities
 {
@@ -14,47 +16,62 @@ namespace NeuralNetDemo.Client.Entities
             _marksPopulation = marksPopulation;
         }
 
-        public void Teach(int numberOfPointsToTeach)
+        public delegate void MarkLearnedEventHandler(object sender, MarkLearnedEventArgs e);
+        public event MarkLearnedEventHandler MarkLearnedEvent;
+
+        public async Task TeachAsync(int numberOfPointsToTeach)
         {
-            _marksPopulation.Marks = new List<Mark>();
-            foreach (var lineId in NeuralNets.Keys)
+            await Task.Run(() =>
             {
-                if (NeuralNets[lineId] is not null)
+                var processed = 0;
+                _marksPopulation.Marks = new List<Mark>();
+                _marksPopulation.CreatePopulation(numberOfPointsToTeach);
+                List<Mark> marks = _marksPopulation.Marks;
+                foreach (var mark in marks)
                 {
-                    _marksPopulation.CreatePopulation(numberOfPointsToTeach);
-                    List<Mark> marks = _marksPopulation.Marks;
-                    foreach (var mark in marks)
+                    foreach (var lineId in NeuralNets.Keys)
                     {
-                        NeuralNets[lineId].SetInputs(new float[] { (float)mark.Center.X, (float)mark.Center.Y });
-                        NeuralNets[lineId].Process();
-                        var output = NeuralNets[lineId].GetOutputs()[0];
-                        var expectedResult = 0f;
-                        if (lineId.IsAboveTheLine(mark.Center))
+                        if (NeuralNets[lineId] is not null)
                         {
-                            expectedResult = 1f;
-                        }
-                        var error = 2f;
-                        if (expectedResult == output)
-                        {
-                            error = 0f;
-                        }
-                        else if (expectedResult < output)
-                        {
-                            error = -2f;
-                        }
-                        //_neuralNet.AdjustWeightsWithError(error);
-                        var inputs = new float[] { (float)mark.Center.X, (float)mark.Center.Y, 1f };
-                        for (var i = 0; i < NeuralNets[lineId].Weights.GetLength(0); i++)
-                        {
-                            for (var k = 0; k < NeuralNets[lineId].Weights.GetLength(1); k++)
+                            NeuralNets[lineId].SetInputs(new float[] { (float)mark.Center.X, (float)mark.Center.Y });
+                            NeuralNets[lineId].Process();
+                            var output = NeuralNets[lineId].GetOutputs()[0];
+                            var expectedResult = 0f;
+                            if (lineId.IsAboveTheLine(mark.Center))
                             {
-                                NeuralNets[lineId].Weights[i, k] += 0.005f * error * inputs[k];
+                                expectedResult = 1f;
+                            }
+                            var error = 2f;
+                            if (expectedResult == output)
+                            {
+                                error = 0f;
+                            }
+                            else if (expectedResult < output)
+                            {
+                                error = -2f;
+                            }
+                            var inputs = new float[] { (float)mark.Center.X, (float)mark.Center.Y, 1f };
+                            for (var i = 0; i < NeuralNets[lineId].Weights.GetLength(0); i++)
+                            {
+                                for (var k = 0; k < NeuralNets[lineId].Weights.GetLength(1); k++)
+                                {
+                                    NeuralNets[lineId].Weights[i, k] += error * inputs[k];
+                                }
                             }
                         }
                     }
                 }
-            }
+                MarkLearnedEvent?.Invoke(this, new MarkLearnedEventArgs(processed/marks.Count*100));
+                return Task.CompletedTask;
+            });
         }
-
     }
+
+    public class MarkLearnedEventArgs
+    {
+        public MarkLearnedEventArgs(double percent) { Percent = percent; }
+        public double Percent { get; }
+    }
+
 }
+

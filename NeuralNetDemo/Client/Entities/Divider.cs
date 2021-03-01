@@ -42,8 +42,8 @@ namespace NeuralNetDemo.Client.Entities
         private void NormalizeCoords()
         {
             _multiplier = (float)(EndPoint.Y / EndPoint.X);
-            double maxX = 500;
-            double maxY = 500;
+            double maxX = 700;
+            double maxY = 700;
             if (EndPoint.X > EndPoint.Y)
             {
                 EndPoint = new Coordinates(maxX, _multiplier * maxX);
